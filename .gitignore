@@ -86,9 +86,14 @@ Markdown Documentation Images/
 documentation_images/
 Presentation Files/
 
-# ── Whitelist DEM_Surrogate_temp1_DataSet ─────────────────────
+# ── Whitelist DEM_Surrogate_temp1_DataSet & Main Dataset Files ────────────────
 !DEM_Surrogate_temp1_DataSet/
 !DEM_Surrogate_temp1_DataSet/**
+!temp1_DataSet.xlsx
+!sim*_angular_profile.csv
+!sim*__angular_profile.csv
+!sim*_profile_analysis.png
+!sim*__profile_analysis.png
 
 # ── Test / scratch files ─────────────────────────────────────
 test_*.png

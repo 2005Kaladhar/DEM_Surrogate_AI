@@ -437,12 +437,23 @@ def main():
                         data = json.load(f)
                         if data.get("last_page") in valid_pages:
                             loaded_page = data["last_page"]
-                        if data.get("excel_path") and os.path.exists(data["excel_path"]):
-                            st.session_state["excel_path"] = data["excel_path"]
+                        raw_excel = data.get("excel_path")
+                        if raw_excel:
+                            if os.path.exists(raw_excel):
+                                st.session_state["excel_path"] = os.path.abspath(raw_excel)
+                            elif os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)), raw_excel)):
+                                st.session_state["excel_path"] = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), raw_excel))
                         if data.get("n_harmonics"):
                             st.session_state["n_harmonics"] = int(data["n_harmonics"])
                 except Exception:
                     pass
+
+            if not st.session_state.get("excel_path"):
+                default_cand = os.path.join(os.path.dirname(os.path.abspath(__file__)), "temp1_DataSet.xlsx")
+                if os.path.exists(default_cand):
+                    st.session_state["excel_path"] = default_cand
+                elif os.path.exists("temp1_DataSet.xlsx"):
+                    st.session_state["excel_path"] = os.path.abspath("temp1_DataSet.xlsx")
 
             st.session_state["mode"] = loaded_page
             st.session_state["mode_radio"] = loaded_page
@@ -1325,9 +1336,35 @@ def main():
         animate_splash_step(splash_placeholder, 51, 75, delay=0.03)
 
     # ─────────────────────────────────────────────────────────────────────────────
-    # Guard: no Excel file selected
+    # Independent Modes: Prediction Model & Data Report do not require Excel dataset
     # ─────────────────────────────────────────────────────────────────────────────
-    if not st.session_state["excel_path"]:
+    if mode == "Prediction Model":
+        if show_splash:
+            animate_splash_step(splash_placeholder, 76, 100, delay=0.015)
+            time.sleep(0.1)
+            splash_placeholder.empty()
+            st.session_state["splash_shown"] = True
+        try:
+            from predictive_dashboard_page import render_predictive_dashboard
+            render_predictive_dashboard()
+        except Exception as e:
+            st.error(f"Predictive Dashboard error: {e}")
+        return
+
+    elif mode == "Data Report":
+        if show_splash:
+            animate_splash_step(splash_placeholder, 76, 100, delay=0.015)
+            time.sleep(0.1)
+            splash_placeholder.empty()
+            st.session_state["splash_shown"] = True
+        from data_report_page import render_data_report_page
+        render_data_report_page(CONFIG_PATH)
+        return
+
+    # ─────────────────────────────────────────────────────────────────────────────
+    # Guard: no Excel file selected (required only for Add Data & View / Update)
+    # ─────────────────────────────────────────────────────────────────────────────
+    if not st.session_state.get("excel_path"):
         if show_splash:
             animate_splash_step(splash_placeholder, 76, 100, delay=0.015)
             time.sleep(0.1)
@@ -2433,22 +2470,7 @@ def main():
                     f'<div class="error-banner">Update failed: {e}</div>',
                     unsafe_allow_html=True)
 
-    # ═════════════════════════════════════════════════════════════════════════════
-    # MODE 3 – DATA REPORT
-    # ═════════════════════════════════════════════════════════════════════════════
-    elif mode == "Data Report":
-        from data_report_page import render_data_report_page
-        render_data_report_page(CONFIG_PATH)
 
-    # ═════════════════════════════════════════════════════════════════════════════
-    # MODE 4 – PREDICTION MODEL
-    # ═════════════════════════════════════════════════════════════════════════════
-    elif mode == "Prediction Model":
-        try:
-            from predictive_dashboard_page import render_predictive_dashboard
-            render_predictive_dashboard()
-        except ImportError:
-            st.error("Predictive Dashboard module not found.")
 
     # Finalize splash screen once the very last content element of the page has loaded
     if show_splash:

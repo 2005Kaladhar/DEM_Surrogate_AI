@@ -48,15 +48,48 @@ print(path)
 
 def load_models_and_scaler():
     active_dir = st.session_state.get("active_project_dir") or st.session_state.get("selected_output_parent")
-    base_dir = active_dir if active_dir and os.path.exists(active_dir) else os.path.dirname(os.path.abspath(__file__))
+    script_dir = os.path.dirname(os.path.abspath(__file__))
     
-    models_dir = os.path.join(base_dir, "model_evaluation")
-    if not os.path.exists(models_dir):
-        models_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "model_evaluation")
-        
-    prep_dir = os.path.join(base_dir, "PRE PROCESSED", "preprocessing_report")
-    if not os.path.exists(prep_dir):
-        prep_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "PRE PROCESSED", "preprocessing_report")
+    candidates = []
+    if active_dir and os.path.exists(active_dir):
+        candidates.extend([
+            active_dir,
+            os.path.join(active_dir, "DEM_Surrogate_temp1_DataSet")
+        ])
+    candidates.extend([
+        os.path.join(script_dir, "DEM_Surrogate_temp1_DataSet"),
+        os.path.join(os.getcwd(), "DEM_Surrogate_temp1_DataSet"),
+        script_dir,
+        os.getcwd()
+    ])
+    
+    models_dir = None
+    for c in candidates:
+        m_path = os.path.join(c, "model_evaluation")
+        if os.path.exists(os.path.join(m_path, "final_model_ke_max_particle.pkl")):
+            models_dir = m_path
+            break
+        if os.path.exists(os.path.join(c, "final_model_ke_max_particle.pkl")):
+            models_dir = c
+            break
+            
+    prep_dir = None
+    for c in candidates:
+        p_path = os.path.join(c, "PRE PROCESSED", "preprocessing_report")
+        if os.path.exists(os.path.join(p_path, "scaler.pkl")):
+            prep_dir = p_path
+            break
+        p_path_alt = os.path.join(c, "preprocessing_report")
+        if os.path.exists(os.path.join(p_path_alt, "scaler.pkl")):
+            prep_dir = p_path_alt
+            break
+        if os.path.exists(os.path.join(c, "scaler.pkl")):
+            prep_dir = c
+            break
+    
+    if not models_dir or not prep_dir:
+        st.error("Failed to locate model weights (`model_evaluation`) or scaler (`PRE PROCESSED/preprocessing_report`). Please ensure `DEM_Surrogate_temp1_DataSet` is present.")
+        return None, None, None, None, None, None
     
     try:
         with open(os.path.join(prep_dir, "scaler.pkl"), "rb") as f:
@@ -69,8 +102,10 @@ def load_models_and_scaler():
             model_cf = pickle.load(f)
         
         # Load dataset for Resemblance Engine
-        df_train_scaled = pd.read_csv(os.path.join(prep_dir, "train_scaled.csv"))
-        df_train_unscaled = pd.read_csv(os.path.join(prep_dir, "train_unscaled.csv"))
+        train_sc_path = os.path.join(prep_dir, "train_scaled.csv")
+        train_unsc_path = os.path.join(prep_dir, "train_unscaled.csv")
+        df_train_scaled = pd.read_csv(train_sc_path) if os.path.exists(train_sc_path) else pd.DataFrame()
+        df_train_unscaled = pd.read_csv(train_unsc_path) if os.path.exists(train_unsc_path) else pd.DataFrame()
             
         return scaler, model_ke, model_power, model_cf, df_train_scaled, df_train_unscaled
     except Exception as e:
@@ -327,7 +362,10 @@ def render_predictive_dashboard():
                     st.caption("No logs yet...")
 
     # Project Folder Selector Widget
-    active_project_dir = st.session_state.get("active_project_dir") or st.session_state.get("selected_output_parent") or os.getcwd()
+    default_proj_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "DEM_Surrogate_temp1_DataSet")
+    if not os.path.exists(default_proj_dir):
+        default_proj_dir = os.getcwd()
+    active_project_dir = st.session_state.get("active_project_dir") or st.session_state.get("selected_output_parent") or default_proj_dir
     col_proj1, col_proj2 = st.columns([3.5, 1.5])
     with col_proj1:
         st.markdown(f"**Active Project Folder:** `{active_project_dir}`")
@@ -855,7 +893,15 @@ def render_predictive_dashboard():
 
             excel_path = st.session_state.get("excel_path", "")
             if not excel_path or not os.path.exists(excel_path):
-                st.info("No raw dataset loaded. Upload the raw dataset in the Add Data page to enable resemblance matching.")
+                cand1 = os.path.join(os.path.dirname(os.path.abspath(__file__)), "temp1_DataSet.xlsx")
+                cand2 = os.path.join(os.path.dirname(os.path.abspath(__file__)), "DEM_Surrogate_temp1_DataSet", "PRE PROCESSED", "data_v1.xlsx")
+                if os.path.exists(cand1):
+                    excel_path = cand1
+                elif os.path.exists(cand2):
+                    excel_path = cand2
+            
+            if not excel_path or not os.path.exists(excel_path):
+                st.info("No raw dataset loaded. Historical resemblance matching requires a dataset.")
             else:
                 try:
                     raw_df = pd.read_excel(excel_path)
