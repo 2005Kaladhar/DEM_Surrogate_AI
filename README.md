@@ -1,4 +1,4 @@
-# ⚙️ DEM Surrogate AI — Physics-Informed Machine Learning Surrogate Suite for Industrial Grinding Mills
+# ⚙️ DEM Surrogate AI — Physics-Guided Tree-Ensemble Surrogate Suite for Industrial Grinding Mills
 
 [![Live Web App](https://img.shields.io/badge/Streamlit_Cloud-Live_App-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://dem-surrogate-model-ai.streamlit.app/)
 [![GitHub Repo](https://img.shields.io/badge/GitHub-2005Kaladhar%2FDEM__Surrogate__AI-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/2005Kaladhar/DEM_Surrogate_AI)
@@ -20,7 +20,7 @@ Optimizing the internal **mill liner geometry** (lifter height, face angles, spa
 * High-fidelity **Discrete Element Method (DEM)** simulations (e.g., Rocky DEM, EDEM) take **4 to 12 hours** per run on multi-core HPC compute clusters.
 * Mining and mineral processing engineers are constrained to screening only **3 to 5 design iterations per week**, creating a massive engineering bottleneck.
 
-**DEM Surrogate AI** replaces expensive numerical particle simulations with a sub-second, physics-informed machine learning surrogate engine. Trained on high-fidelity DEM simulation rotation cycles across multi-scale industrial mills (diameters from 5.0 m to 11.2 m), it reconstructs complete 100-point rotational dynamics in **under 50 milliseconds**.
+**DEM Surrogate AI** replaces expensive numerical particle simulations with a sub-second, data-driven machine learning surrogate engine enhanced by **domain-engineered physical feature representations**. Trained on high-fidelity DEM simulation rotation cycles across multi-scale industrial mills (diameters from 5.0 m to 11.2 m), it reconstructs complete 100-point rotational dynamics in **under 50 milliseconds**.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -229,7 +229,7 @@ If you use this surrogate model architecture, Fourier shape descriptors, or feat
 ```bibtex
 @software{gopal2026demsurrogate,
   author    = {Kaladhar Gopal},
-  title     = {DEM Surrogate AI: Physics-Informed Machine Learning Surrogate Suite for Industrial Grinding Mills},
+  title     = {DEM Surrogate AI: Physics-Guided Tree-Ensemble Surrogate Suite for Industrial Grinding Mills},
   year      = {2026},
   url       = {https://dem-surrogate-model-ai.streamlit.app/},
   publisher = {GitHub},
