@@ -1,0 +1,97 @@
+# ============================================================
+# .gitignore for DEM Surrogate AI — Razorpay Hackathon Repo
+# ============================================================
+
+# ── Raw Data Files (never upload to GitHub) ──────────────────
+*.xlsx
+*.xls
+*.csv
+*.xlsm
+masterDataSet_v1.csv
+temp1_DataSet.xlsx
+prediction_inputs*.xlsx
+sim*_angular_profile.csv
+
+# ── STEP / CAD Files (large binary, confidential IP) ─────────
+*.step
+*.stp
+*.STEP
+*.STP
+*.stl
+
+# ── Large simulation images (per-sim output artifacts) ───────
+sim*_face_detection.png
+sim*_liner_profile.png
+sim*_profile_analysis.png
+tmp*_face_detection.png
+tmp*_liner_profile.png
+tmp*_profile_analysis.png
+
+# ── Internship / Company Documents ───────────────────────────
+*.docx
+*.pptx
+*.pdf
+*.mp4
+*.wfp
+
+# ── Python Cache ─────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# ── Virtual Environments ──────────────────────────────────────
+venv/
+env/
+.venv/
+.env/
+
+# ── IDE & Editor ─────────────────────────────────────────────
+.vscode/
+.idea/
+.cursor/
+.gemini/
+.kiro/
+.claude/
+.qoder/
+.codebuddy/
+*.cursorrules
+*.windsurfrules
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+CODEBUDDY.md
+QODER.md
+
+# ── OS Artifacts ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+~$*
+
+# ── Streamlit Cache ───────────────────────────────────────────
+.streamlit/
+*.streamlit
+
+# ── CatBoost ─────────────────────────────────────────────────
+catboost_info/
+
+# ── Temp output directories ──────────────────────────────────
+temp*/
+temp output*/
+DEM_Surrogate_temp*/
+DATA BACKUP/
+evaluation_plots/
+extracted_images_disch/
+Markdown Documentation Images/
+documentation_images/
+Presentation Files/
+
+# ── Test / scratch files ─────────────────────────────────────
+test_*.png
+test_*.py
+audit_app_state.txt
+find_out.txt
+Filtering Data.txt
+Effective Data Paths*.txt
