@@ -849,14 +849,18 @@ def analyse_step_process_target(step_path: str, q: mp.Queue):
         try:
             import cadquery as cq
         except Exception as e:
-            L("err", f"CadQuery / OCP geometry engine could not be initialized: {e}")
+            err_msg = f"CadQuery / OCP geometry engine could not be initialized: {e}"
+            L("err", err_msg)
+            q.put({"type": "error", "error": err_msg})
             return False
         
         L("inf", f"Loading STEP file: {os.path.basename(step_path)}")
         result = cq.importers.importStep(step_path)
         solids = result.solids().vals()
         if not solids:
-            L("err", "No solids found in STEP file.")
+            err_msg = "No solids found in STEP file."
+            L("err", err_msg)
+            q.put({"type": "error", "error": err_msg})
             return False
         L("ok", f"Loaded {len(solids)} solid(s) from file.")
 
