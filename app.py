@@ -417,6 +417,18 @@ def main():
             pass
         st.session_state["suggested_mill_dia"] = None
 
+    def _resolve_default_excel():
+        cand_paths = [
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "temp1_DataSet.xlsx"),
+            os.path.join(os.getcwd(), "temp1_DataSet.xlsx"),
+            os.path.abspath("temp1_DataSet.xlsx"),
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "DEM_Surrogate_temp1_DataSet", "PRE PROCESSED", "data_v1.xlsx"),
+        ]
+        for p in cand_paths:
+            if os.path.exists(p):
+                return os.path.abspath(p)
+        return None
+
     _save_config = _save_settings
 
     def init_state():
@@ -448,15 +460,14 @@ def main():
                 except Exception:
                     pass
 
-            if not st.session_state.get("excel_path"):
-                default_cand = os.path.join(os.path.dirname(os.path.abspath(__file__)), "temp1_DataSet.xlsx")
-                if os.path.exists(default_cand):
-                    st.session_state["excel_path"] = default_cand
-                elif os.path.exists("temp1_DataSet.xlsx"):
-                    st.session_state["excel_path"] = os.path.abspath("temp1_DataSet.xlsx")
-
             st.session_state["mode"] = loaded_page
             st.session_state["mode_radio"] = loaded_page
+
+        curr_excel = st.session_state.get("excel_path")
+        if not curr_excel or not os.path.exists(curr_excel):
+            def_excel = _resolve_default_excel()
+            if def_excel:
+                st.session_state["excel_path"] = def_excel
 
     init_state()
 
@@ -1229,10 +1240,27 @@ def main():
         st.markdown("## Settings")
         st.markdown("---")
         st.markdown("**Dataset Excel File**")
-        if st.session_state["excel_path"]:
+        
+        curr_path = st.session_state.get("excel_path")
+        if not curr_path or not os.path.exists(curr_path):
+            def_p = _resolve_default_excel()
+            if def_p:
+                st.session_state["excel_path"] = def_p
+                curr_path = def_p
+
+        if curr_path and os.path.exists(curr_path):
             st.markdown(
-                f'<div class="success-banner" style="word-break:break-all;font-size:0.78rem;">'
-                f'<b>Active:</b><br>{st.session_state["excel_path"]}</div>',
+                f'<div class="success-banner" style="word-break:break-all;font-size:0.8rem;padding:8px 12px;margin-bottom:8px;">'
+                f'📁 <b>Active Dataset:</b><br>'
+                f'<span style="font-weight:600;color:#0f766e;">{os.path.basename(curr_path)}</span><br>'
+                f'<span style="color:#64748b;font-size:0.72rem;">{curr_path}</span>'
+                f'</div>',
+                unsafe_allow_html=True)
+        else:
+            st.markdown(
+                f'<div class="info-banner" style="word-break:break-all;font-size:0.8rem;padding:8px 12px;margin-bottom:8px;">'
+                f'⚠️ <b>No dataset selected</b>'
+                f'</div>',
                 unsafe_allow_html=True)
 
         if st.button("Select / Change Excel File", key="btn_pick_excel"):
@@ -1240,9 +1268,27 @@ def main():
                 title="Select Excel dataset file",
                 filetypes=[("Excel files", "*.xlsx *.xls"), ("All files", "*.*")],
             )
-            if fpath:
+            if fpath and os.path.exists(fpath):
                 st.session_state["excel_path"] = fpath
                 _save_config(fpath)
+                st.rerun()
+
+        # Browser upload for cloud/server deployments
+        sb_file = st.file_uploader(
+            "Upload Custom Excel (.xlsx)",
+            type=["xlsx", "xls"],
+            key="sb_excel_upload",
+            help="Upload an Excel dataset directly from your browser"
+        )
+        if sb_file is not None:
+            save_dest = os.path.join(os.path.dirname(os.path.abspath(__file__)), sb_file.name)
+            with open(save_dest, "wb") as f:
+                f.write(sb_file.getbuffer())
+            if st.session_state.get("excel_path") != save_dest:
+                st.session_state["excel_path"] = save_dest
+                _save_config(save_dest)
+                st.success(f"Loaded: {sb_file.name}")
+                time.sleep(0.3)
                 st.rerun()
 
         if st.button("Create New Excel File", key="btn_new_excel"):
