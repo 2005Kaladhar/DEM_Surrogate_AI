@@ -12,7 +12,10 @@ import time
 import os
 import io
 import traceback
-import cadquery as cq
+try:
+    import cadquery as cq
+except Exception:
+    cq = None
 
 def _detect_mill_axis(solids):
     all_mins, all_maxs = [], []
@@ -843,7 +846,11 @@ def analyse_step_process_target(step_path: str, q: mp.Queue):
 
     try:
         L("inf", "Initializing geometry engine (may take 15s on first run)...")
-        import cadquery as cq
+        try:
+            import cadquery as cq
+        except Exception as e:
+            L("err", f"CadQuery / OCP geometry engine could not be initialized: {e}")
+            return False
         
         L("inf", f"Loading STEP file: {os.path.basename(step_path)}")
         result = cq.importers.importStep(step_path)
