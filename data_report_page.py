@@ -854,12 +854,19 @@ def render_data_report_page(config_path: str) -> None:
 """, unsafe_allow_html=True)
 
         # Resolve evaluation_plots folder strictly from active project directory
+        excel_p = st.session_state.get("excel_path")
+        excel_dir = os.path.dirname(excel_p) if (excel_p and isinstance(excel_p, str)) else None
+
         candidate_dirs = [
             st.session_state.get("target_plots_dir"),
             st.session_state.get("active_project_dir"),
             target_project_dir if 'target_project_dir' in locals() else None,
             st.session_state.get("selected_output_parent"),
-            os.path.dirname(st.session_state.get("excel_path", "")),
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "DEM_Surrogate_temp1_DataSet"),
+            os.path.join(os.getcwd(), "DEM_Surrogate_temp1_DataSet"),
+            os.path.dirname(os.path.abspath(__file__)),
+            os.getcwd(),
+            excel_dir,
         ]
 
         plots_folder = None
