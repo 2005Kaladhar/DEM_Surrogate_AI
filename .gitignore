@@ -80,13 +80,15 @@ catboost_info/
 # ── Temp output directories ──────────────────────────────────
 temp*/
 temp output*/
-DEM_Surrogate_temp*/
 DATA BACKUP/
-evaluation_plots/
 extracted_images_disch/
 Markdown Documentation Images/
 documentation_images/
 Presentation Files/
+
+# ── Whitelist DEM_Surrogate_temp1_DataSet ─────────────────────
+!DEM_Surrogate_temp1_DataSet/
+!DEM_Surrogate_temp1_DataSet/**
 
 # ── Test / scratch files ─────────────────────────────────────
 test_*.png
